@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>SF Browser 15</title>
+    <style type="text/css">
+        /* Ad Blocker CSS */
+        .ad {
+            display: none !important;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #000000;
+        }
+
+        #navBar {
+            width: 100%;
+            height: 50px;
+            background-color: #1a1919;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            box-sizing: border-box;
+        }
+
+        #navBar input[type="text"],
+        #navBar select {
+            width: 70%;
+            height: 30px;
+            font-size: 20px;
+            padding: 0 10px;
+            border: none;
+            border-radius: 5px;
+            background-color: #2a2929;
+            box-sizing: border-box;
+            color: whitesmoke;
+            outline: none;
+        }
+
+        #navBar button {
+            width: 10%;
+            height: 30px;
+            font-size: 20px;
+            border: none;
+            border-radius: 5px;
+            background-color: #e01e10;
+            color: white;
+            outline: none;
+        }
+
+        #browserFrame {
+            width: 100%;
+            height: calc(100vh - 50px);
+            border: none;
+            filter: brightness(100%);
+        }
+
+        #fpsDisplay {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #e01e10;
+            font-size: 16px;
+            color: white;
+            padding: 5px;
+            border-radius: 5px;
+            box-sizing: border-box;
+            height: 30px;
+            width: 100px;
+            margin-left: 10px;
+        }
+
+        #homeButton {
+            width: 10%;
+            height: 30px;
+            font-size: 20px;
+            border: none;
+            border-radius: 5px;
+            background-color: #4CAF50;
+            color: white;
+            outline: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="navBar">
+        <button id="homeButton">Home</button>
+        <button id="backButton">Back</button>
+        <button id="forwardButton">Forward</button>
+        <input id="urlInput" type="text" id="urlInput" value="" />
+        <button id="goButton">Go</button>
+        <div id="fpsDisplay">FPS: 0</div>
+    </div>
+    <iframe id="browserFrame"></iframe>
+    <script type="text/javascript">
+        var backButton = document.getElementById("backButton");
+        var forwardButton = document.getElementById("forwardButton");
+        var urlInput = document.getElementById("urlInput");
+        var goButton = document.getElementById("goButton");
+        var browserFrame = document.getElementById("browserFrame");
+        var fpsDisplay = document.getElementById("fpsDisplay");
+        var homeButton = document.getElementById("homeButton");
+        var fps = 0;
+        var framesRendered = 0;
+        var lastFrameTime = performance.now();
+        var historyCount = 0;
+        var history = {};
+
+        // Function to add "https://" if not provided in the URL
+        function addHttpsIfNeeded(url) {
+            if (!url.startsWith("http://") && !url.startsWith("https://")) {
+                return "https://" + url;
+            }
+            return url;
+        }
+
+        // Handle go button click
+        goButton.addEventListener("click", function () {
+            var finalUrl = addHttpsIfNeeded(urlInput.value);
+            browserFrame.src = finalUrl;
+            addToHistory(finalUrl);
+        });
+        // Function to handle Go button click or Enter key press
+        function goToURL() {
+            var finalUrl = addHttpsIfNeeded(urlInput.value);
+            browserFrame.src = finalUrl;
+            addToHistory(finalUrl);
+        }
+        // Handle enter button click
+        urlInput.addEventListener("keypress", function (event) {
+            if (event.keyCode === 13) {
+                goToURL();
+            }
+        });
+
+        // handle back button click
+        backButton.addEventListener("click", function () {
+            browserFrame.contentWindow.history.back();
+        });
+
+        // handle forward button click
+        forwardButton.addEventListener("click", function () {
+            browserFrame.contentWindow.history.forward();
+        });
+        // handle home button click (reload page)
+        homeButton.addEventListener("click", function () {
+            location.reload();
+        });
+
+        // measure FPS and update display
+        function measureFPS() {
+            framesRendered++;
+            var currentTime = performance.now();
+            var elapsedTime = currentTime - lastFrameTime;
+            if (elapsedTime >= 1000) {
+                fps = Math.round((framesRendered / elapsedTime) * 1000);
+                fpsDisplay.textContent = "FPS: " + fps;
+                framesRendered = 0;
+                lastFrameTime = currentTime;
+            }
+            requestAnimationFrame(measureFPS);
+        }
+        requestAnimationFrame(measureFPS);
+
+        // Ad Blocker Script
+        function blockAds() {
+            var ads = browserFrame.contentDocument.getElementsByClassName("ad");
+            for (var i = 0; i < ads.length; i++) {
+                ads[i].style.display = "none";
+            }
+        }
+
+        // Call blockAds function when the iframe content loads
+        browserFrame.addEventListener("load", function () {
+            blockAds();
+        });
+
+
+
+        /*
+        Added adblocker.
+        */
+    </script>
+</body>
+</html>
